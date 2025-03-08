@@ -77,47 +77,153 @@ class Simulation:
         self.history.append(state)
 
     def generate_report(self):
-        """Genera un archivo XLS con los resultados de la simulación."""
+        """Genera un archivo XLS con los resultados de la simulación, estilizado y con colores."""
         print("Generando reporte...")
         file_path = "output/simulation_results.xlsx"
 
-        # Crear un Excel Writer
+        # Crear un Excel Writer con formato
         writer = pd.ExcelWriter(file_path, engine='openpyxl')
+        
+        # Definir estilos de celda para cada tipo
+        from openpyxl.styles import PatternFill, Font, Alignment, Border, Side
+        
+        # Colores para los diferentes tipos
+        styles = {
+            # Tipos de suelo
+            "water": PatternFill(start_color="4472C4", end_color="4472C4", fill_type="solid"),
+            "rock": PatternFill(start_color="A5A5A5", end_color="A5A5A5", fill_type="solid"),
+            "soil": PatternFill(start_color="C65911", end_color="C65911", fill_type="solid"),
+            "soil+": PatternFill(start_color="548235", end_color="548235", fill_type="solid"),
+            
+            # Entidades
+            "animal-small": PatternFill(start_color="FFD966", end_color="FFD966", fill_type="solid"),
+            "animal-big": PatternFill(start_color="F4B183", end_color="F4B183", fill_type="solid"),
+            "plant-low": PatternFill(start_color="70AD47", end_color="70AD47", fill_type="solid"),
+            "plant-high": PatternFill(start_color="385723", end_color="385723", fill_type="solid"),
+            "fungi": PatternFill(start_color="7030A0", end_color="7030A0", fill_type="solid"),
+            
+            # Estados
+            "dead": PatternFill(start_color="FF0000", end_color="FF0000", fill_type="solid"),
+            
+            # Estilo para encabezados
+            "header": PatternFill(start_color="1F4E78", end_color="1F4E78", fill_type="solid")
+        }
+        
+        # Bordes
+        thin_border = Border(
+            left=Side(style='thin'),
+            right=Side(style='thin'),
+            top=Side(style='thin'),
+            bottom=Side(style='thin')
+        )
+        
+        # Fuentes
+        white_font = Font(color="FFFFFF", bold=True)
+        black_font = Font(color="000000", bold=True)
+        
+        # Alineación
+        center_aligned = Alignment(horizontal='center', vertical='center')
 
         # Para cada tick, crear una hoja con el estado
         for tick, state in enumerate(self.history):
-            # Convertir el estado a un formato más simple para Excel
-            simplified_state = []
+            # Crear DataFrame base
+            df = pd.DataFrame(index=range(self.grid.size), columns=range(self.grid.size))
+            
+            # Llenar datos y aplicar estilos
             for x in range(self.grid.size):
-                row = []
                 for y in range(self.grid.size):
                     cell = state[x][y]
-                    cell_repr = cell["tile_type"]
+                    cell_value = cell["tile_type"]
                     
                     if cell["entity"]:
                         if cell["entity"] == "Animal":
-                            cell_repr += f":{cell['entity_size']}:{cell['entity_state']}"
+                            cell_value = f"{cell['entity_size']}\n{cell['entity_state']}"
                         elif cell["entity"] == "Plant":
-                            cell_repr += f":{cell['entity_size']}:{cell['entity_state']}:{cell['entity_hp']}"
+                            cell_value = f"{cell['entity_size']}\nHP:{cell['entity_hp']}"
                         elif cell["entity"] == "Fungi":
-                            cell_repr += f":fungi:{cell['entity_state']}:{cell['entity_hp']}"
+                            cell_value = f"Fungi\nHP:{cell['entity_hp']}"
                     
-                    # Añadir entidades adicionales si existen
-                    if "additional_entities" in cell:
-                        for add_entity in cell["additional_entities"]:
-                            cell_repr += f" + {add_entity['type']}:{add_entity['state']}"
-                    
-                    row.append(cell_repr)
-                simplified_state.append(row)
-            
-            # Crear DataFrame y guardar en Excel
-            df = pd.DataFrame(simplified_state)
-            df.to_excel(writer, sheet_name=f'Tick {tick}')
+                    df.iloc[x, y] = cell_value
 
-        # Crear una hoja de resumen
+            # Guardar en Excel
+            sheet_name = f'Tick {tick}'
+            df.to_excel(writer, sheet_name=sheet_name)
+            
+            # Obtener la hoja actual
+            worksheet = writer.sheets[sheet_name]
+            
+            # Ajustar ancho de columnas y alto de filas
+            for column in worksheet.columns:
+                worksheet.column_dimensions[column[0].column_letter].width = 15
+            for row in worksheet.rows:
+                worksheet.row_dimensions[row[0].row].height = 40
+
+            # Aplicar estilos a las celdas
+            for x in range(self.grid.size):
+                for y in range(self.grid.size):
+                    cell = state[x][y]
+                    excel_cell = worksheet.cell(row=x+2, column=y+2)  # +2 por el offset del índice
+                    
+                    # Aplicar estilo según el contenido
+                    if cell["entity"]:
+                        if cell["entity"] == "Animal":
+                            style = styles[cell["entity_size"]]
+                        elif cell["entity"] == "Plant":
+                            style = styles[cell["entity_size"]]
+                        elif cell["entity"] == "Fungi":
+                            style = styles["fungi"]
+                            
+                        if cell["entity_state"] == "dead":
+                            style = styles["dead"]
+                    else:
+                        style = styles[cell["tile_type"]]
+                    
+                    excel_cell.fill = style
+                    excel_cell.border = thin_border
+                    excel_cell.alignment = center_aligned
+                    excel_cell.font = white_font if cell["tile_type"] in ["water", "rock"] else black_font
+
+            # Estilizar encabezados
+            for cell in worksheet[1]:
+                cell.fill = styles["header"]
+                cell.font = white_font
+                cell.alignment = center_aligned
+                cell.border = thin_border
+            
+            for cell in worksheet['A']:
+                cell.fill = styles["header"]
+                cell.font = white_font
+                cell.alignment = center_aligned
+                cell.border = thin_border
+
+        # Crear hoja de resumen
         summary_data = self.generate_summary()
         summary_df = pd.DataFrame(summary_data)
         summary_df.to_excel(writer, sheet_name='Resumen')
+        
+        # Estilizar hoja de resumen
+        worksheet = writer.sheets['Resumen']
+        
+        # Ajustar ancho de columnas
+        for column in worksheet.columns:
+            max_length = 0
+            column_letter = column[0].column_letter
+            for cell in column:
+                try:
+                    if len(str(cell.value)) > max_length:
+                        max_length = len(str(cell.value))
+                except:
+                    pass
+            worksheet.column_dimensions[column_letter].width = max_length + 2
+
+        # Aplicar estilos al resumen
+        for row in worksheet.rows:
+            for cell in row:
+                cell.border = thin_border
+                cell.alignment = center_aligned
+                if cell.row == 1:  # Encabezados
+                    cell.fill = styles["header"]
+                    cell.font = white_font
 
         writer.close()
         print(f"Reporte guardado en {file_path}")

@@ -1,6 +1,6 @@
-# Simulador de Tráfico
+# Simulador de Ecosistema
 
-Este proyecto implementa un simulador de tráfico utilizando FastAPI para la interfaz web.
+Este proyecto implementa un simulador de ecosistema utilizando FastAPI para la interfaz web.
 
 ## Requisitos
 
@@ -29,6 +29,21 @@ Este proyecto implementa un simulador de tráfico utilizando FastAPI para la int
 
 2. Acceder a la API en `http://localhost:8000`
 
-## Endpoints
+## Endpoints y Ejemplos de Uso
 
-- POST `/start`: Inicia una nueva simulación
+### Iniciar Simulación (POST /start)
+
+#### Usando Postman:
+- Método: `POST`
+- URL: `http://localhost:8000/start`
+- Query Params:
+  ```
+  ticks: 150           (requerido, número de ticks para la simulación)
+  num_animals: 32      (opcional, default=5)
+  num_plants: 86       (opcional, default=10)
+  num_fungi: 26        (opcional, default=3)
+  ```
+
+Ejemplo de URL completa:
+
+ http://localhost:8000/start?ticks=150&num_animals=32&num_plants=84&num_fungi=26
