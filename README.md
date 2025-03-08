@@ -32,5 +32,3 @@ Este proyecto implementa un simulador de tráfico utilizando FastAPI para la int
 ## Endpoints
 
 - POST `/start`: Inicia una nueva simulación
-- GET `/state`: Obtiene el estado actual de la simulación
-- GET `/download`: Descarga los resultados en formato Excel

@@ -118,6 +118,10 @@ class Animal(Entity):
         return food_found
 
     def reproduce(self, grid):
+        # No reproducirse en el primer tick
+        if self.ticks_alive == 0:
+            return
+            
         if self.state != self.LIVE:
             return
             
@@ -185,6 +189,10 @@ class Plant(Entity):
                 self.size = "plant-high"
 
     def reproduce(self, grid):
+        # No reproducirse en el primer tick
+        if self.ticks_alive == 0:
+            return
+            
         if self.state != self.LIVE:
             return
             

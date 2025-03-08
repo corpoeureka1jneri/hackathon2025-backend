@@ -20,9 +20,6 @@ class MapGenerator:
         # Asegurar que haya al menos una casilla de cada tipo requerido
         self.ensure_minimum_tiles()
 
-        # Colocar entidades iniciales mínimas requeridas
-        self.place_initial_entities()
-
     def get_random_tile_type(self):
         """Devuelve un tipo de suelo aleatorio según las probabilidades definidas."""
         probabilities = {
@@ -62,51 +59,8 @@ class MapGenerator:
                         placed[tile_type] = True
                         break
 
-    def place_initial_entities(self):
-        """Coloca al menos 2 entidades iniciales: 1 animal y 1 planta (requisito mínimo)."""
-        # Colocar al menos un animal
-        animal_count = 0
-        plant_count = 0
-        
-        # Intentar colocar 2 animales
-        while animal_count < 2:
-            x, y = random.randint(0, self.grid.size-1), random.randint(0, self.grid.size-1)
-            tile = self.grid.tiles[x][y]
-            
-            # Crear animal con water_born si nace en agua
-            water_born = (tile.type == "water")
-            animal = Animal(x, y, water_born)
-            
-            if self.grid.place_entity(x, y, animal):
-                animal_count += 1
-                
-            # Evitar bucle infinito si no hay espacio
-            if animal_count == 1 and self._count_empty_tiles() < 1:
-                break
 
-        # Colocar al menos 2 plantas (no en roca)
-        while plant_count < 2:
-            x, y = random.randint(0, self.grid.size-1), random.randint(0, self.grid.size-1)
-            tile = self.grid.tiles[x][y]
-            
-            if tile.type != "rock" and not tile.entity:
-                plant = Plant(x, y)
-                if self.grid.place_entity(x, y, plant):
-                    plant_count += 1
-                    
-            if plant_count == 1 and self._count_empty_tiles() < 1:
-                break
-
-    def _count_empty_tiles(self):
-        """Cuenta el número de celdas vacías en el mapa."""
-        count = 0
-        for x in range(self.grid.size):
-            for y in range(self.grid.size):
-                if not self.grid.tiles[x][y].entity:
-                    count += 1
-        return count
-
-    def add_random_entities(self, num_animals=5, num_plants=10, num_fungi=3):
+    def add_random_entities(self, num_animals, num_plants, num_fungi):
         """Añade un número específico de entidades aleatorias al mapa."""
         # Añadir animales
         for _ in range(num_animals):
