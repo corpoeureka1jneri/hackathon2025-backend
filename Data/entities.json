@@ -1,0 +1,24 @@
+{
+
+    "entities": [
+        {
+            "Animal": [
+                {
+                    "type": "Animal",
+                    "subClases": {
+                        "name": "animal-small",
+                        "type": "animal-Big"
+                    },
+                    "States": {
+                        "initialStates": "live",
+                        "states": ["live", "dead", "remove"]
+                    },
+                    "properties": {
+                        "alowedCellMoves": [1,2,3]
+                        
+                    }
+                }
+            ]
+        }
+    ]
+}
