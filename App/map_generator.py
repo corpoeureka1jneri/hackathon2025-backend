@@ -62,7 +62,12 @@ class MapGenerator:
 
     def add_random_entities(self, num_animals, num_plants, num_fungi):
         """Añade un número específico de entidades aleatorias al mapa."""
-        # Añadir animales
+        # Añadir animales y verificar si el usuario 
+        if(num_animals == 0):
+            num_animals = 2
+        
+        if(num_plants == 0):
+            num_plants = 2
         for _ in range(num_animals):
             for attempt in range(10):  # Intentar 10 veces
                 x, y = random.randint(0, self.grid.size-1), random.randint(0, self.grid.size-1)
