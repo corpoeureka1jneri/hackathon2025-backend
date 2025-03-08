@@ -37,13 +37,6 @@ def start_simulation(
     
     return {"message": "Simulación completada", "ticks": ticks}
 
-@app.get("/state")
-def get_simulation_state():
-    """Devuelve el estado actual de la simulación."""
-    if simulation:
-        return simulation.get_current_state()
-    return {"error": "Simulación no iniciada"}
-
 @app.get("/download")
 def download_results():
     """Descarga el archivo XLS con los resultados de la simulación."""
@@ -66,7 +59,6 @@ def read_root():
         "description": "API para simular un ecosistema con animales, plantas y hongos",
         "endpoints": [
             {"path": "/start", "method": "POST", "description": "Inicia una nueva simulación"},
-            {"path": "/state", "method": "GET", "description": "Obtiene el estado actual de la simulación"},
             {"path": "/download", "method": "GET", "description": "Descarga los resultados en formato Excel"}
         ]
     }

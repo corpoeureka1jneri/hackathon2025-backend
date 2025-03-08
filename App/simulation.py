@@ -76,47 +76,6 @@ class Simulation:
         
         self.history.append(state)
 
-    def get_current_state(self):
-        """Devuelve el estado actual de la simulación en formato legible."""
-        if not self.history:
-            return {"error": "No hay datos de simulación disponibles"}
-            
-        current_state = self.history[-1]
-        
-        # Contar entidades por tipo y estado
-        counts = {
-            "animal_small": 0,
-            "animal_big": 0,
-            "plant_low": 0,
-            "plant_high": 0,
-            "fungi": 0,
-            "dead_entities": 0
-        }
-        
-        for row in current_state:
-            for cell in row:
-                if cell["entity"] == "Animal":
-                    if cell["entity_size"] == "animal-small":
-                        counts["animal_small"] += 1
-                    else:
-                        counts["animal_big"] += 1
-                elif cell["entity"] == "Plant":
-                    if cell["entity_size"] == "plant-low":
-                        counts["plant_low"] += 1
-                    else:
-                        counts["plant_high"] += 1
-                elif cell["entity"] == "Fungi":
-                    counts["fungi"] += 1
-                    
-                if cell["entity_state"] == "dead":
-                    counts["dead_entities"] += 1
-        
-        return {
-            "tick": self.current_tick,
-            "total_ticks": self.ticks,
-            "entity_counts": counts
-        }
-
     def generate_report(self):
         """Genera un archivo XLS con los resultados de la simulación."""
         print("Generando reporte...")
