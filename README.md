@@ -1,3 +1,5 @@
+## Christian Mendoza
+
 # Simulador de Ecosistema
 
 Este proyecto implementa un simulador de ecosistema utilizando FastAPI para la interfaz web.
