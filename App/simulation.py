@@ -120,9 +120,10 @@ class Simulation:
         # Fuentes
         white_font = Font(color="FFFFFF", bold=True)
         black_font = Font(color="000000", bold=True)
+        red_font = Font(color="FF0000", bold=True)
         
         # Alineación
-        center_aligned = Alignment(horizontal='center', vertical='center')
+        center_aligned = Alignment(horizontal='center', vertical='center', wrap_text=True)
 
         # Para cada tick, crear una hoja con el estado
         for tick, state in enumerate(self.history):
@@ -133,15 +134,26 @@ class Simulation:
             for x in range(self.grid.size):
                 for y in range(self.grid.size):
                     cell = state[x][y]
-                    cell_value = cell["tile_type"]
+                    
+                    # Siempre mostrar el tipo de tile como base
+                    tile_type = cell["tile_type"]
                     
                     if cell["entity"]:
+                        # Construir la información de la entidad
                         if cell["entity"] == "Animal":
-                            cell_value = f"{cell['entity_size']}\n{cell['entity_state']}"
+                            entity_info = f"{cell['entity_size']}\n{cell['entity_state']}"
                         elif cell["entity"] == "Plant":
-                            cell_value = f"{cell['entity_size']}\nHP:{cell['entity_hp']}"
+                            # Para plantas muertas, mostrar HP=0
+                            hp_value = 0 if cell["entity_state"] == "dead" else cell["entity_hp"]
+                            entity_info = f"{cell['entity_size']}\n{cell['entity_state']}\nHP:{hp_value}"
                         elif cell["entity"] == "Fungi":
-                            cell_value = f"Fungi\nHP:{cell['entity_hp']}"
+                            entity_info = f"Fungi\n{cell['entity_state']}\nHP:{cell['entity_hp']}"
+                        
+                        # Combinar tipo de tile con información de la entidad
+                        cell_value = f"[{tile_type}]\n{entity_info}"
+                    else:
+                        # Solo mostrar el tipo de tile
+                        cell_value = f"[{tile_type}]"
                     
                     df.iloc[x, y] = cell_value
 
@@ -154,9 +166,9 @@ class Simulation:
             
             # Ajustar ancho de columnas y alto de filas
             for column in worksheet.columns:
-                worksheet.column_dimensions[column[0].column_letter].width = 15
+                worksheet.column_dimensions[column[0].column_letter].width = 18
             for row in worksheet.rows:
-                worksheet.row_dimensions[row[0].row].height = 40
+                worksheet.row_dimensions[row[0].row].height = 60  # Aumentar altura para más información
 
             # Aplicar estilos a las celdas
             for x in range(self.grid.size):
@@ -181,7 +193,12 @@ class Simulation:
                     excel_cell.fill = style
                     excel_cell.border = thin_border
                     excel_cell.alignment = center_aligned
-                    excel_cell.font = white_font if cell["tile_type"] in ["water", "rock"] else black_font
+                    
+                    # Ajustar color de fuente según el fondo
+                    if cell["tile_type"] in ["water", "rock"] or (cell["entity"] and cell["entity_state"] == "dead"):
+                        excel_cell.font = white_font
+                    else:
+                        excel_cell.font = black_font
 
             # Estilizar encabezados
             for cell in worksheet[1]:

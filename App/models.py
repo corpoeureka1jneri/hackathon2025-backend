@@ -227,6 +227,7 @@ class Plant(Entity):
         # Verificar si debe morir por edad
         if self.ticks_alive >= self.max_life:
             self.state = self.DEAD
+            self.hp = 0  # Establecer HP a 0 cuando muere
             # Si es plant-high, degrada la tierra al morir
             if self.size == "plant-high":
                 tile.degrade_soil()
@@ -240,6 +241,7 @@ class Plant(Entity):
         
         # Si pierde todo su HP, muere
         if self.hp <= 0:
+            self.hp = 0  # Asegurar que HP no sea negativo
             self.state = self.DEAD
             # Si es plant-high, degrada la tierra al morir
             if self.size == "plant-high":
