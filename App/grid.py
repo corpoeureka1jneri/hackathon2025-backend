@@ -59,7 +59,7 @@ class Grid:
     def random_tile_type(self):
         """Genera un tipo de tile aleatorio según la distribución inicial."""
         types = ["water", "rock", "soil", "soil+"]
-        probabilities = [0.1, 0.2, 0.5, 0.2]  # Ajustar según necesidades
+        probabilities = [0.1, 0.2, 0.5, 0.2] 
         return random.choices(types, weights=probabilities, k=1)[0]
 
     def place_entity(self, x, y, entity):
